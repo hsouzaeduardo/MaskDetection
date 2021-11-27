@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Detect Faces Sample</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.2/css/bulma.min.css">
+        <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+<!-- <script_include> -->
+<script type="text/javascript">
+
+const subscriptionKey = "c8bbd68158e84c49a915e6d55b7c72ce";
+const uriBase = "https://face-hsouza.cognitiveservices.azure.com/face/v1.0/detect";
+
+
+var makeblob = function(dataURL){
+    const BASE64_MARKER = ';base64,';
+    const parts = dataURL.split(BASE64_MARKER);
+    const contentType = parts[0].split(':')[1];
+    const raw = window.atob(parts[1]);
+    const rawLength = raw.length;
+    const uInt8Array = new Uint8Array(rawLength);
+
+    for (let i = 0; i < rawLength; ++i) {
+      uInt8Array[i] = raw.charCodeAt(i);
+    }
+
+    return new Blob([uInt8Array], { type: contentType });
+  }
+
+var processImage = function(sourceImageUrl) {
+        // Request parameters.
+        var params = {
+			"detectionModel": "detection_03",
+            "returnFaceId": "true",
+            "returnFaceLandmarks": "true",
+            "recognitionModel": "recognition_02",
+            "returnAge":"true",
+            "returnFaceAttributes": "mask"
+        };
+        var x = new Uint8Array(sourceImageUrl);
+        $.ajax({
+            url: uriBase + "?" + $.param(params),
+            beforeSend: function(xhrObj){
+               // xhrObj.setRequestHeader("Content-Type","application/json");
+                xhrObj.setRequestHeader("Content-Type","application/octet-stream");
+                xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", subscriptionKey);
+            },
+            type: "POST",
+            //data: '{"url": ' + '"' + sourceImageUrl + '"}',
+            data: sourceImageUrl ,
+            processData: false,
+
+        }).done(function(data) {
+            // // Show formatted JSON on webpage.
+            // var left= 620 + (data[0].faceRectangle.left / 2);
+            // var top = 140 + (data[0].faceRectangle.top/ 2);
+            // var width =  data[0].faceRectangle.width;
+            // var height =  data[0].faceRectangle.height;
+            // $("#divFoto").css("top", top);
+            // $("#divFoto").css("left", left );
+            // $("#divFoto").css("height", height);
+            // $("#divFoto").css("width", width);
+             var mask = data[0].faceAttributes.mask.noseAndMouthCovered;
+            $("#mask").html(mask ? "Parabéns pode entrar": "Coloque sua máscara e tente novamente");
+            $("#mask").css("color", mask ? "green" : "red");
+            // $("#responseTextArea").val(JSON.stringify(data, null, 2));
+
+        })
+    
+        .fail(function(jqXHR, textStatus, errorThrown) {
+            // Display error message.
+            var errorString = (errorThrown === "") ?
+                "Error. " : errorThrown + " (" + jqXHR.status + "): ";
+            errorString += (jqXHR.responseText === "") ?
+                "" : ($.parseJSON(jqXHR.responseText).message) ?
+                    $.parseJSON(jqXHR.responseText).message :
+                        $.parseJSON(jqXHR.responseText).error.message;
+            alert(errorString);
+        });
+    };
+
+</script>
+<!-- </script_include> -->
+    </head>
+    <body>
+       
+<section class="section">
+    <div class="container">
+      <div class="columns">
+        <div class="column is-four-fifths">
+          <h1 class="title">
+            Detector De Mascaras: <span id="mask"></span>
+          </h1>
+          <video autoplay id="video"></video>
+          <button class="button is-hidden" id="btnPlay">
+            <span class="icon is-small">
+              <i class="fas fa-play"></i>
+            </span> 
+          </button>
+          <button class="button" id="btnPause">
+            <span class="icon">
+              <i class="fas fa-pause"></i>
+            </span>
+          </button>
+          <button class="button is-success" id="btnScreenshot">
+            <span class="icon is-small">
+              <i class="fas fa-camera"></i>
+            </span>
+            <span>Validar Máscara</span>
+          </button>
+          <button class="button" id="btnChangeCamera">
+            <span class="icon">
+              <i class="fas fa-sync-alt"></i>
+            </span>
+            <span>Trocar Camera</span>
+          </button>
+        </div>
+        <div class="column">
+          <div id="screenshots" style="display: none;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <canvas class="is-hidden" id="canvas"></canvas>
+  <script src="camera.js"></script>
+    </body>
+</html>
