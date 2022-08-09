@@ -8,8 +8,8 @@
 <!-- <script_include> -->
 <script type="text/javascript">
 
-const subscriptionKey = "c8bbd68158e84c49a915e6d55b7c72ce";
-const uriBase = "https://face-hsouza.cognitiveservices.azure.com/face/v1.0/detect";
+  const subscriptionKey = "b1da458f09274bba862a3d4f65cb5718";
+        const url = "https://wipro-cog.cognitiveservices.azure.com/face/v1.0/detect";
 
 
 var makeblob = function(dataURL){
@@ -39,7 +39,7 @@ var processImage = function(sourceImageUrl) {
         };
         var x = new Uint8Array(sourceImageUrl);
         $.ajax({
-            url: uriBase + "?" + $.param(params),
+            url: url + "?" + $.param(params),
             beforeSend: function(xhrObj){
                // xhrObj.setRequestHeader("Content-Type","application/json");
                 xhrObj.setRequestHeader("Content-Type","application/octet-stream");
